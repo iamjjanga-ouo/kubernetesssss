@@ -1,0 +1,4 @@
+FROM busybox:latest
+COPY count-random.sh /bin/count-random.sh
+ENTRYPOINT chmod +x /bin/count-random.sh && \
+            /bin/count-random.sh
