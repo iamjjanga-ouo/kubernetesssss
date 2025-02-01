@@ -1,0 +1,68 @@
+require 'yaml'
+settings = YAML.load_file(File.join(File.dirname(__FILE__), 'settings.yaml'))
+
+Vagrant.configure("2") do |config|
+    config.vm.box = settings['box_name']
+    config.vm.box_check_update = false
+
+    settings['vm'].each do |vm_config|
+        config.vm.define vm_config['name'] do |vm|
+          vm.vm.hostname = vm_config['name']
+          vm.vm.network "private_network", ip: vm_config['ip']
+          vm.vm.synced_folder ".", "/vagrant", disabled: false
+    
+          vm.vm.provider "vmware_fusion" do |vb|
+            vb.gui = false
+            vb.memory = vm_config['memory']
+            vb.cpus = vm_config['cpus']
+          end
+    
+          vm.vm.provision "shell", inline: <<-SHELL
+            snap install microk8s --classic
+            snap install docker
+            microk8s.status --wait-ready
+            microk8s.enable dns dashboard registry
+            usermod -a -G microk8s vagrant
+            echo "alias kubectl='microk8s.kubectl'" > /home/vagrant/.bash_aliases
+            chown vagrant:vagrant /home/vagrant/.bash_aliases
+            echo "alias kubectl='microk8s.kubectl'" > /root/.bash_aliases
+            chown root:root /root/.bash_aliases
+            apt update
+            apt upgrade -y
+            apt install -y wget vim net-tools gcc make tar git unzip sysstat tree
+            echo "192.168.201.10 controlplane" >> /etc/hosts
+            echo "192.168.201.11 node01" >> /etc/hosts
+            echo "192.168.201.12 node02" >> /etc/hosts
+          SHELL
+          # vm.vm.provision "shell", path: "scripts/common.sh"
+        end
+      end
+    end
+
+    # config.vm.define "controlplane" do |controlplane|
+    #   controlplane.vm.provision "shell", inline: <<-SHELL
+    #     export local_ip="$(ip route | grep default | cut -d' ' -f9)"
+    #     microk8s.add-node | grep $local_ip | grep worker | tee /vagrant/add_k8s
+    #   SHELL
+    # end
+  
+    # config.vm.define "microk8s_a" do |microk8s_a|
+    #   microk8s_a.vm.hostname = "microk8s-a"
+    #   microk8s_a.vm.provider "virtualbox" do |vb|
+    #     vb.name = "microk8s-a"
+    #   end
+    #   microk8s_a.vm.provision "shell", inline: <<-EOF
+    #     export local_ip="$(ip route | grep default | grep enp0s8 | cut -d' ' -f9)"
+    #     microk8s.add-node | grep $local_ip | tee /vagrant/add_k8s
+    #   EOF
+    # end
+    # config.vm.define "microk8s_b" do |microk8s_b|
+    #   microk8s_b.vm.hostname = "microk8s-b"
+    #   microk8s_b.vm.provider "virtualbox" do |vb|
+    #     vb.name = "microk8s-b"
+    #   end
+    #   microk8s_b.vm.provision "shell", inline: <<-EOF
+    #     bash -x /vagrant/add_k8s
+    #   EOF
+    # end
+#   end
