@@ -1,0 +1,3 @@
+operator:
+  registry: appscodeci
+  tag: v0.13.2_linux_amd64
