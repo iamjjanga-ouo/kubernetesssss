@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: metallb-system
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - namespace.yaml
+  - metallb.yaml
+
+# NOTE: `docker network inspect -f '{{.IPAM.Config}}' kind` to get the subnet
+configMapGenerator:
+  - name: config
+    namespace: metallb-system
+    files:
+      - config

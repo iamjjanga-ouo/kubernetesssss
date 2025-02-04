@@ -1,0 +1,4 @@
+path-ignore:
+  # Ignore Certificate create for local development (using mkcert)
+  - "**/kind.local+1-key.pem"
+  - "**/kind.local+1.pem"

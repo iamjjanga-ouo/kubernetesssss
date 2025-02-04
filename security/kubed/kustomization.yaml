@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kube-system
+
+helmCharts:
+  - name: kubed
+    repo: https://charts.appscode.com/stable/
+    releaseName: kubed
+    namespace: kube-system
+    version: v0.13.2
+    # includeCRDs: true # NOTE: CRDs(issuer, certificates) are included by values.yaml
+    valuesFile: values.yaml
