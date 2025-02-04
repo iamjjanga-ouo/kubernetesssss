@@ -58,8 +58,13 @@ metadata:
   name: example-ingress
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - foo.bar.com
+      secretName: kind-local-certs
   rules:
-    - http:
+    - host: kind.local
+      http:
         paths:
           - pathType: Prefix
             path: /foo
