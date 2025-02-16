@@ -1,0 +1,10 @@
+controller:
+  allowSnippetAnnotations: true
+  config:
+    # ==================================================================
+    # 설정 목적: Nginx Ingress Controller의 Annotations에 server-snippet을 사용하기 위해 추가
+    # 적용 이유: v1.21.0 버전부터 Annotaions을 적용할 수 있는 기본값이 `High`로 변경되어 기존에 사용하던 Annotations을 사용하기 위해 추가
+    # 관련 링크: https://github.com/kubernetes/ingress-nginx/pull/11819
+    # 변경 내역: annotations-risk-level을 "Critical"으로 설정
+    # ==================================================================
+    annotations-risk-level: "Critical"
